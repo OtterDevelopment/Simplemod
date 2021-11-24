@@ -18,7 +18,9 @@ export default class SlashCommand {
 		this.options = options.options || [];
 
 		this.permissions = options.permissions || [];
-		this.clientPermissions = options.clientPermissions || [];
+		this.clientPermissions = client.config.requiredPermissions.concat(
+			options.clientPermissions || []
+		);
 
 		this.devOnly = options.devOnly || false;
 		this.guildOnly = options.guildOnly || false;

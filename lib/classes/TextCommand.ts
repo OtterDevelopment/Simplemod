@@ -18,8 +18,10 @@ export default class TextCommand {
 		this.aliases = options.aliases || [];
 
 		this.permissions = options.permissions || [];
-		this.clientPermissions = options.clientPermissions || [];
-		
+		this.clientPermissions = client.config.requiredPermissions.concat(
+			options.clientPermissions || []
+		);
+
 		this.devOnly = options.devOnly || false;
 		this.guildOnly = options.guildOnly || false;
 		this.ownerOnly = options.ownerOnly || false;
