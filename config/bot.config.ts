@@ -1,4 +1,4 @@
-import { Intents } from "discord.js";
+import { Intents, PermissionString } from "discord.js";
 
 export default {
 	version: "1.0.0",
@@ -13,10 +13,10 @@ export default {
 	hastebin: "https://h.inv.wtf",
 
 	colors: {
-		primary: "#5865F2",
-		success: "#57F287",
-		warning: "#FEE75C",
-		error: "#ED4245"
+		primary: "5865F2",
+		success: "57F287",
+		warning: "FEE75C",
+		error: "ED4245"
 	},
 
 	intents: [
@@ -27,6 +27,12 @@ export default {
 		Intents.FLAGS.GUILD_MESSAGES,
 		Intents.FLAGS.GUILD_MESSAGE_REACTIONS
 	],
+
+	requiredPermissions: [
+		"EMBED_LINKS",
+		"SEND_MESSAGES",
+		"USE_EXTERNAL_EMOJIS"
+	] as PermissionString[],
 
 	apiKeys: {},
 
