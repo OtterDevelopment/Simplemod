@@ -62,9 +62,9 @@ export default class ButtonHandler {
 		button
 			.run(interaction)
 			.then(() => this.client.usersUsingBot.delete(interaction.user.id))
-			.catch((error): Promise<any> => {
+			.catch(async (error): Promise<any> => {
 				this.client.logger.error(error);
-				const sentryId = this.client.logger.sentry.captureWithInteraction(
+				const sentryId = await this.client.logger.sentry.captureWithInteraction(
 					error,
 					interaction
 				);

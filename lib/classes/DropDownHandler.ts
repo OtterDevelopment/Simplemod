@@ -35,7 +35,7 @@ export default class DropdownHandler {
 	}
 
 	public async handleDropDown(interaction: SelectMenuInteraction) {
-		const dropDown = this.fetchDropDown(interaction.message.id);
+		const dropDown = this.fetchDropDown(interaction.message!.id);
 		if (!dropDown) return;
 
 		const missingPermissions = dropDown.validate(interaction);
@@ -66,9 +66,9 @@ export default class DropdownHandler {
 		dropdown
 			.run(interaction)
 			.then(() => this.client.usersUsingBot.delete(interaction.user.id))
-			.catch((error): Promise<any> => {
+			.catch(async (error): Promise<any> => {
 				this.client.logger.error(error);
-				const sentryId = this.client.logger.sentry.captureWithInteraction(
+				const sentryId = await this.client.logger.sentry.captureWithInteraction(
 					error,
 					interaction
 				);

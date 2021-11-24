@@ -75,7 +75,7 @@ export default class SlashCommandHandler {
 			this.client.logger.debug(
 				`${interaction.user.tag} [${interaction.user.id}] invoked slash command ${interaction.commandName} even though it doesn't exist.`
 			);
-			const sentryId = this.client.logger.sentry.captureWithInteraction(
+			const sentryId = await this.client.logger.sentry.captureWithInteraction(
 				new Error(`Non existent command invoked`),
 				interaction
 			);
@@ -143,9 +143,9 @@ export default class SlashCommandHandler {
 		command
 			.run(interaction)
 			.then(() => this.client.usersUsingBot.delete(interaction.user.id))
-			.catch((error): Promise<any> => {
+			.catch(async (error): Promise<any> => {
 				this.client.logger.error(error);
-				const sentryId = this.client.logger.sentry.captureWithInteraction(
+				const sentryId = await this.client.logger.sentry.captureWithInteraction(
 					error,
 					interaction
 				);

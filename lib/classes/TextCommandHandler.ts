@@ -69,9 +69,9 @@ export default class TextCommandHandler {
 		command
 			.run(message, args)
 			.then(() => this.client.usersUsingBot.delete(message.author.id))
-			.catch((error): Promise<any> => {
+			.catch(async (error): Promise<any> => {
 				this.client.logger.error(error);
-				const sentryId = this.client.logger.sentry.captureWithMessage(error, message);
+				const sentryId = await this.client.logger.sentry.captureWithMessage(error, message);
 				return message.reply(
 					this.client.functions.generateErrorMessage({
 						title: "An Error Has Occurred",
