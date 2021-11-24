@@ -23,7 +23,7 @@
 		"@sentry/node": "^6.15.0",
 		"@sentry/tracing": "^6.15.0",
 		"colorette": "^2.0.16",
-		"discord.js": "^13.3.1",
+		"discord.js": "^13.4.0-dev.1637237217.802a5ac",
 		"dotenv-extended": "^2.9.0",
 		"hastebin": "^0.2.1",
 		"mongodb": "^4.2.0",
