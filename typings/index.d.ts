@@ -1,5 +1,7 @@
 import {
 	ApplicationCommandData,
+	ApplicationCommandOptionData,
+	GuildMember,
 	MessageActionRow,
 	MessageEmbed,
 	PermissionString
