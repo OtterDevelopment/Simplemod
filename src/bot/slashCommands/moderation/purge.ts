@@ -7,7 +7,6 @@ import {
 	Snowflake,
 	User
 } from "discord.js";
-import Logger from "../../../../lib/classes/Logger.js";
 import SlashCommand from "../../../../lib/classes/SlashCommand.js";
 import BetterClient from "../../../../lib/extensions/BetterClient.js";
 
@@ -124,25 +123,33 @@ export default class Purge extends SlashCommand {
 		const amount = interaction.options.getInteger("amount");
 		const before = interaction.options.getString("before");
 		const after = interaction.options.getString("after");
-		const match = new RegExp(interaction.options.getString("match")!, "gi");
-		const noMatch = new RegExp(interaction.options.getString("nomatch")!, "gi");
-		const messages = (
+		const messages = new Collection<Snowflake, Message<boolean>>();
+		for (const message of (
 			await channel.messages.fetch({
 				limit: amount,
 				before,
 				after
 			} as ChannelLogsQueryOptions)
-		).filter((message) => {
+		).values()) {
 			// The logic for this chunk of code was heavily inspired by Geek @ FireDiscordBot, the options were original but also matched the ones Geek had made.
 			// Repo @ https://github.com/FireDiscordBot/bot
-			const content = message.content.toLowerCase();
 			let completed = [];
 			if (interaction.options.getUser("user"))
 				completed.push(interaction.options.getUser("user")!.id === message.author.id);
-			if (interaction.options.getString("match"))
-				completed.push(content.match(match) !== null);
-			if (interaction.options.getString("nomatch"))
-				completed.push(content.match(noMatch) === null);
+			if (interaction.options.getString("match")) {
+				const matches = await this.client.executeRegex(
+					new RegExp(interaction.options.getString("match")!, "gi"),
+					message.content
+				);
+				completed.push(matches !== null && matches.length > 0);
+			}
+			if (interaction.options.getString("nomatch")) {
+				const matches = await this.client.executeRegex(
+					new RegExp(interaction.options.getString("nomatch")!, "gi"),
+					message.content
+				);
+				completed.push(matches !== null && matches.length === 0);
+			}
 			if (interaction.options.getRole("role"))
 				completed.push(
 					message.member?.roles.cache.get(interaction.options.getRole("role")!.id)
@@ -167,10 +174,10 @@ export default class Purge extends SlashCommand {
 						// @ts-ignore
 						`<@!${interaction.options.getMentionable("mentions")!.id}>`,
 						interaction.options.getMentionable("mentions")!.toString()
-					].some((mention) => content.includes(mention))
+					].some((mention) => message.content.includes(mention))
 				);
-			return completed.filter((c) => !c).length === 0;
-		});
+			if (completed.every((c) => c)) messages.set(message.id, message);
+		}
 		let deleted = new Collection<Snowflake, Message>();
 		if (messages.size === 0)
 			return interaction.reply(
