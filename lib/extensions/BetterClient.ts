@@ -134,16 +134,16 @@ export default class BetterClient extends Client {
 		return reducedStats || this.cachedStats;
 	}
 
-	public async executeRegex(regex: RegExp, message: string) {
+	public async executeRegex(regex: RegExp, content: string) {
 		try {
-			const result = await this.regexWorker.execRegExp(regex, message);
+			const result = await this.regexWorker.execRegExp(regex, content);
 			return result.matches.length || regex.global ? result.matches : null;
 		} catch (error: any) {
 			if (error.message !== null && error.elapsedTimeMs !== null) return null;
 			this.logger.error(error);
 			this.logger.sentry.captureWithExtras(error, {
 				"Regular Expression": regex,
-				Message: message
+				Content: content
 			});
 			return null;
 		}
