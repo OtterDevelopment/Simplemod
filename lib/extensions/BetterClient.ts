@@ -1,6 +1,7 @@
 import path from "path";
 import { MongoClient } from "mongodb";
 import Button from "../classes/Button.js";
+import { TimeoutError, RegExpWorker } from "regexp-worker";
 import DropDown from "../classes/DropDown.js";
 import * as Logger from "../classes/Logger.js";
 import Config from "../../config/bot.config.js";
@@ -34,10 +35,13 @@ export default class BetterClient extends Client {
 	public stats: Stats;
 	public cachedStats: CachedStats;
 	public readonly __dirname: string;
+	public readonly regexWorker: RegExpWorker;
 	constructor(options: ClientOptions) {
 		super(options);
 
 		this.__dirname = path.resolve();
+
+		this.regexWorker = new RegExpWorker(100);
 
 		this.usersUsingBot = new Set();
 		this.config = Config;
@@ -94,10 +98,11 @@ export default class BetterClient extends Client {
 		return this.functions
 			.getFiles(`${(this, this.__dirname)}/dist/src/bot/events`, ".js", true)
 			.forEach(async (eventFileName) => {
-				const eventFile = await import(`./../../src/bot/events/${
-					eventFileName
-				}`);
-				const event: EventHandler = new eventFile.default(this, eventFileName.split(".js")[0]);
+				const eventFile = await import(`./../../src/bot/events/${eventFileName}`);
+				const event: EventHandler = new eventFile.default(
+					this,
+					eventFileName.split(".js")[0]
+				);
 				event.listen();
 				return this.events.set(event.name, event);
 			});
@@ -127,5 +132,20 @@ export default class BetterClient extends Client {
 		});
 		this.cachedStats = reducedStats || this.cachedStats;
 		return reducedStats || this.cachedStats;
+	}
+
+	public async executeRegex(regex: RegExp, message: string) {
+		try {
+			const result = await this.regexWorker.execRegExp(regex, message);
+			return result.matches.length || regex.global ? result.matches : null;
+		} catch (error: any) {
+			if (error.message !== null && error.elapsedTimeMs !== null) return null;
+			this.logger.error(error);
+			this.logger.sentry.captureWithExtras(error, {
+				"Regular Expression": regex,
+				Message: message
+			});
+			return null;
+		}
 	}
 }
