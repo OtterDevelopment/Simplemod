@@ -14,6 +14,7 @@ export default class Purge extends SlashCommand {
 	constructor(client: BetterClient) {
 		super("purge", client, {
 			description: `Delete a large amount of messages that meet a certain criteria.`,
+			guildOnly: true,
 			permissions: ["MANAGE_MESSAGES"],
 			clientPermissions: ["MANAGE_MESSAGES", "READ_MESSAGE_HISTORY"],
 			options: [
