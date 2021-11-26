@@ -99,6 +99,11 @@ export default class Purge extends SlashCommand {
 					name: "after",
 					type: "STRING",
 					description: "Only purge messages after this message."
+				},
+				{
+					name: "delete_pinned",
+					type: "BOOLEAN",
+					description: "Delete pinned messages."
 				}
 			]
 		});
@@ -120,7 +125,7 @@ export default class Purge extends SlashCommand {
 						"I can't read messages in that channel, please make sure I have the **View Channel**, **Read Message History**, and **Manage Messages** permissions!"
 				})
 			);
-		const amount = interaction.options.getInteger("amount");
+		const amount = interaction.options.getInteger("amount")!;
 		const before = interaction.options.getString("before");
 		const after = interaction.options.getString("after");
 		const messages = new Collection<Snowflake, Message<boolean>>();
@@ -134,6 +139,7 @@ export default class Purge extends SlashCommand {
 			// The logic for this chunk of code was heavily inspired by Geek @ FireDiscordBot, the options were original but also matched the ones Geek had made.
 			// Repo @ https://github.com/FireDiscordBot/bot
 			let completed = [];
+			if (message.pinned && !interaction.options.getBoolean("delete_pinned")) continue;
 			if (interaction.options.getUser("user"))
 				completed.push(interaction.options.getUser("user")!.id === message.author.id);
 			if (interaction.options.getString("match")) {
