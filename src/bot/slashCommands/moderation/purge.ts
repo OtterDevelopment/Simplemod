@@ -24,7 +24,7 @@ export default class Purge extends SlashCommand {
 					description: "The amount of messages to look through.",
 					required: true,
 					minValue: 1,
-					maxValue: 1000
+					maxValue: 100
 				},
 				{
 					name: "channel",
